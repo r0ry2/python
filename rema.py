@@ -1,9 +1,17 @@
+def is_valid_name(name):
+    return name.isalpha()  # يتحقق إذا كان الاسم يحتوي فقط على حروف
 
-def main():#ذا تعريف الدالة الرئيسية main()
-    
-    print("🎓 Welcome to the Math Quiz Game!")# رسالة ترحيبية
-    
-    user_name = input("Please enter your name: ").strip()
+def play_game():
+    print("[INFO] Welcome to the Math Quiz Game!")
+
+    # التحقق من الاسم
+    while True:
+        user_name = input("Please enter your name: ").strip()
+        if is_valid_name(user_name):
+            break
+        else:
+            print("[ERROR] Invalid name! Please enter letters only (no numbers or symbols).")
+
     score = 0
 
     questions = [
@@ -33,10 +41,10 @@ def main():#ذا تعريف الدالة الرئيسية main()
         }
     ]
 
-    print(f"\nHi {user_name}, let's start!\n")#\n لإضافة سطر جديد لزيادة وضوح العرض
+    print(f"\n[INFO] Hi {user_name}, let's start!\n")
 
     for i, q in enumerate(questions):
-        print(f"Q{i+1}: {q['question']}")
+        print(f"[Q{i+1}] {q['question']}")
         for idx, choice in enumerate(q["choices"], 1):
             print(f"  {idx}. {choice}")
 
@@ -49,23 +57,33 @@ def main():#ذا تعريف الدالة الرئيسية main()
 
             if selected == q["answer"]:
                 score += q["points"]
-                print(f"✅ Correct! You earned {q['points']} point(s). Total score: {score}\n")
+                print(f"[OK] Correct! You earned {q['points']} point(s). Total score: {score}\n")
             else:
                 score = 0
-                print(f"❌ Wrong answer! The correct answer was: {q['answer']}")
-                print("You lost all your points. Game Over!\n")
+                print(f"[ERROR] Wrong answer! The correct answer was: {q['answer']}")
+                print("[INFO] You lost all your points. Game Over!\n")
                 break
 
         except ValueError:
-            print("⚠️ Invalid input! Please enter a number from 1 to 4.")
-            print("You lost all your points due to invalid input. Game Over!\n")
+            print("[ERROR] Invalid input! Please enter a number from 1 to 4.")
+            print("[INFO] You lost all your points due to invalid input. Game Over!\n")
             score = 0
             break
 
-    print(" Final Results:")
-    print(f"👤 Player: {user_name}")
-    print(f"🏁 Score: {score}")
+    print("----- Final Results -----")
+    print(f"[PLAYER] {user_name}")
+    print(f"[SCORE]  {score}")
+    print("-------------------------")
 
-# Run the game
+def main():
+    while True:
+        play_game()
+
+        retry = input("Do you want to play again? (yes/no): ").strip().lower()
+        if retry != "yes":
+            print("[INFO] Thanks for playing! Goodbye!")
+            break
+
+# Start the program
 if __name__ == "__main__":
     main()
