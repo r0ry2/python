@@ -1,89 +1,93 @@
-def is_valid_name(name):
-    return name.isalpha()  # يتحقق إذا كان الاسم يحتوي فقط على حروف
+import re
 
-def play_game():
-    print("[INFO] Welcome to the Math Quiz Game!")
+class Player:
+    def __init__(self, name, id):
+        self.name = name
+        self.score = 0
 
-    # التحقق من الاسم
-    while True:
-        user_name = input("Please enter your name: ").strip()
-        if is_valid_name(user_name):
-            break
-        else:
-            print("[ERROR] Invalid name! Please enter letters only (no numbers or symbols).")
+    def add_score(self, points):
+        self.score += points
 
-    score = 0
+    def reset_score(self):
+        self.score = 0
 
-    questions = [
-        {
-            "question": "What is 9 + 6?",
-            "choices": ["14", "15", "16", "17"],
-            "answer": "15",
-            "points": 1
-        },
-        {
-            "question": "What is 7 × 4?",
-            "choices": ["28", "24", "32", "30"],
-            "answer": "28",
-            "points": 2
-        },
-        {
-            "question": "What is the square root of 49?",
-            "choices": ["6", "7", "8", "9"],
-            "answer": "7",
-            "points": 3
-        },
-        {
-            "question": "What is (3 + 5) × 2?",
-            "choices": ["16", "13", "18", "20"],
-            "answer": "16",
-            "points": 4
-        }
-    ]
+class Question:
+    def __init__(self, id, text, choices, answer, mark):
+        self.id = id
+        self.text = text
+        self.choices = choices
+        self.answer = answer
+        self.mark = mark
 
-    print(f"\n[INFO] Hi {user_name}, let's start!\n")
+    def is_correct(self, choice_index):
+        return self.choices[choice_index] == self.answer
 
-    for i, q in enumerate(questions):
-        print(f"[Q{i+1}] {q['question']}")
-        for idx, choice in enumerate(q["choices"], 1):
-            print(f"  {idx}. {choice}")
+class Game:
+    def __init__(self):
+        self.questions = [
+            Question(1, "What is 9 + 6?", ["14", "15", "16", "17"], "15", 1),
+            Question(2, "What is 7 × 4?", ["28", "24", "32", "30"], "28", 2),
+            Question(3, "What is the square root of 49?", ["6", "7", "8", "9"], "7", 3),
+            Question(4, "What is (3 + 5) × 2?", ["16", "13", "18", "20"], "16", 4)
+        ]
+        self.player = None
 
-        try:
-            user_input = int(input("Enter your answer (1-4): "))
-            if user_input < 1 or user_input > 4:
-                raise ValueError("Invalid choice number.")
-
-            selected = q["choices"][user_input - 1]
-
-            if selected == q["answer"]:
-                score += q["points"]
-                print(f"[OK] Correct! You earned {q['points']} point(s). Total score: {score}\n")
+    def get_player_name(self):
+        while True:
+            name = input("[INPUT] Please enter your name: ").strip()
+            if not re.match("^[A-Za-z ]+$", name):
+                print("[ERROR] Name must contain only letters. Try again.")
             else:
-                score = 0
-                print(f"[ERROR] Wrong answer! The correct answer was: {q['answer']}")
-                print("[INFO] You lost all your points. Game Over!\n")
+                return name
+
+    def play(self):
+        print("[INFO] Welcome to the Math Quiz Game!")
+
+        name = self.get_player_name()
+        self.player = Player(name, 1)
+
+        for q in self.questions:
+            print(f"[QUESTION {q.id}] {q.text}")
+            for idx, choice in enumerate(q.choices, 1):
+                print(f"   {idx}. {choice}")
+
+            try:
+                user_input = int(input("[INPUT] Enter your answer (1-4): "))
+                if user_input < 1 or user_input > 4:
+                    raise ValueError
+
+                if q.is_correct(user_input - 1):
+                    self.player.add_score(q.mark)
+                    print(f"[OK] Correct! +{q.mark} points. Total score: {self.player.score}\n")
+                else:
+                    print(f"[WRONG] Incorrect. Correct answer was: {q.answer}")
+                    self.player.reset_score()
+                    print("[GAME OVER] You lost all your points.\n")
+                    break
+
+            except ValueError:
+                print("[ERROR] Invalid input. Please enter a number between 1 and 4.")
+                self.player.reset_score()
+                print("[GAME OVER] Invalid input caused game over.\n")
                 break
 
-        except ValueError:
-            print("[ERROR] Invalid input! Please enter a number from 1 to 4.")
-            print("[INFO] You lost all your points due to invalid input. Game Over!\n")
-            score = 0
-            break
+        print("[RESULTS] Game Over")
+        print(f"[PLAYER] Name: {self.player.name}")
+        print(f"[SCORE] Final Score: {self.player.score}")
 
-    print("----- Final Results -----")
-    print(f"[PLAYER] {user_name}")
-    print(f"[SCORE]  {score}")
-    print("-------------------------")
+    def ask_play_again(self):
+        while True:
+            again = input("[INPUT] Do you want to play again? (y/n): ").lower()
+            if again == "y":
+                self.play()
+            elif again == "n":
+                print("[EXIT] Thank you for playing!")
+                break
+            else:
+                print("[ERROR] Please enter 'y' or 'n'.")
 
-def main():
-    while True:
-        play_game()
-
-        retry = input("Do you want to play again? (yes/no): ").strip().lower()
-        if retry != "yes":
-            print("[INFO] Thanks for playing! Goodbye!")
-            break
-
-# Start the program
+# Start the game
 if __name__ == "__main__":
-    main()
+    game = Game()
+    game.play()
+    game.ask_play_again()
